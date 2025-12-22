@@ -9,6 +9,7 @@ defmodule AuctionWeb.Application do
   def start(_type, _args) do
     children = [
       AuctionWeb.Telemetry,
+      {Phoenix.PubSub, name: AuctionWeb.PubSub},
       # Start a worker by calling: AuctionWeb.Worker.start_link(arg)
       # {AuctionWeb.Worker, arg},
       # Start to serve requests, typically the last entry

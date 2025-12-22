@@ -18,6 +18,10 @@ defmodule AuctionWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+    live "/items", ItemLive.Index, :index
+    live "/items/new", ItemLive.Index, :new
+    live "/items/:id/edit", ItemLive.Index, :edit
+    live "/items/:id", ItemLive.Show, :show
   end
 
   # Other scopes may use custom stacks.

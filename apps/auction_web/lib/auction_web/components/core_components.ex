@@ -230,12 +230,12 @@ defmodule AuctionWeb.CoreComponents do
     ~H"""
     <div class="fieldset mb-2">
       <label>
-        <span :if={@label} class="label mb-1">{@label}</span>
+        <span :if={@label} class="label mb-1 block font-bold text-zinc-900 dark:text-zinc-200">{@label}</span>
         <textarea
           id={@id}
           name={@name}
           class={[
-            @class || "w-full textarea",
+            @class || "w-full textarea bg-white text-zinc-900 border-zinc-300 dark:bg-zinc-900 dark:text-white dark:border-zinc-700 focus:border-blue-500",
             @errors != [] && (@error_class || "textarea-error")
           ]}
           {@rest}
@@ -246,19 +246,18 @@ defmodule AuctionWeb.CoreComponents do
     """
   end
 
-  # All other inputs text, datetime-local, url, password, etc. are handled here...
   def input(assigns) do
     ~H"""
     <div class="fieldset mb-2">
       <label>
-        <span :if={@label} class="label mb-1">{@label}</span>
+        <span :if={@label} class="label mb-1 block font-bold text-zinc-900">{@label}</span>
         <input
           type={@type}
           name={@name}
           id={@id}
           value={Phoenix.HTML.Form.normalize_value(@type, @value)}
           class={[
-            @class || "w-full input",
+            @class || "w-full input bg-white text-zinc-900 border-zinc-300 focus:border-blue-500 [color-scheme:light]",
             @errors != [] && (@error_class || "input-error")
           ]}
           {@rest}
@@ -468,5 +467,110 @@ defmodule AuctionWeb.CoreComponents do
   """
   def translate_errors(errors, field) when is_list(errors) do
     for {^field, {msg, opts}} <- errors, do: translate_error({msg, opts})
+  end
+
+  @doc """
+  Renders a modal.
+  """
+  attr :id, :string, required: true
+  attr :show, :boolean, default: false
+  attr :on_cancel, :any, default: %JS{}
+  slot :inner_block, required: true
+
+  def modal(assigns) do
+    ~H"""
+    <div
+      id={@id}
+      phx-mounted={@show && show_modal(@id)}
+      phx-remove={hide_modal(@id)}
+      data-cancel={JS.exec(@on_cancel, "phx-remove")}
+      class="relative z-50 hidden"
+    >
+      <div id={"#{@id}-bg"} class="fixed inset-0 bg-gray-50/90 transition-opacity" aria-hidden="true" />
+      <div
+        class="fixed inset-0 overflow-y-auto"
+        aria-labelledby={"#{@id}-title"}
+        aria-describedby={"#{@id}-description"}
+        role="dialog"
+        aria-modal="true"
+        tabindex="0"
+      >
+        <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+          <div class="w-full max-w-3xl overflow-hidden rounded-2xl bg-white dark:bg-zinc-900 dark:border dark:border-zinc-700 p-6 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
+            <button
+              phx-click={JS.exec("data-cancel", to: "##{@id}")}
+              type="button"
+              class="-m-3 flex-none p-3 float-right opacity-20 hover:opacity-40 dark:text-white"
+              aria-label="close"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+              </svg>
+            </button>
+            <div id={"#{@id}-content"}>
+              <%= render_slot(@inner_block) %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    """
+  end
+
+  @doc """
+  Renders a simple form.
+  """
+  attr :for, :any, required: true, doc: "The datastructure for the form"
+  attr :as, :any, default: nil, doc: "The server side parameter to collect all input under"
+  attr :rest, :global, include: ~w(autocomplete name rel action enctype method novalidate target multipart), doc: "the arbitrary HTML attributes to apply to the form tag"
+  slot :inner_block, required: true
+  slot :actions, doc: "the slot for form actions, such as a submit button"
+
+  def simple_form(assigns) do
+    ~H"""
+    <.form :let={f} for={@for} as={@as} {@rest}>
+      <div class="space-y-8 mt-10">
+        <.error :if={@for.source.action in [:insert, :update]}>
+          Oops, algo deu errado! Por favor, verifique os erros abaixo.
+        </.error>
+
+        <%= render_slot(@inner_block, f) %>
+
+        <div :for={action <- @actions} class="mt-2 flex items-center justify-between gap-6">
+          <%= render_slot(action, f) %>
+        </div>
+      </div>
+    </.form>
+    """
+  end
+
+  def show_modal(js \\ %JS{}, id) do
+    js
+    |> JS.show(to: "##{id}")
+    |> JS.show(
+      to: "##{id}-bg",
+      transition: {"transition-all transform ease-out duration-300", "opacity-0", "opacity-100"}
+    )
+    |> JS.show(
+      to: "##{id}-content",
+      transition: {"transition-all transform ease-out duration-300", "opacity-0 scale-95", "opacity-100 scale-100"}
+    )
+    |> JS.add_class("overflow-hidden", to: "body")
+    |> JS.focus_first(to: "##{id}-content")
+  end
+
+  def hide_modal(js \\ %JS{}, id) do
+    js
+    |> JS.hide(
+      to: "##{id}-bg",
+      transition: {"transition-all transform ease-in duration-200", "opacity-100", "opacity-0"}
+    )
+    |> JS.hide(
+      to: "##{id}-content",
+      transition: {"transition-all transform ease-in duration-200", "opacity-100 scale-100", "opacity-0 scale-95"}
+    )
+    |> JS.hide(to: "##{id}", transition: {"block", "block", "hidden"})
+    |> JS.remove_class("overflow-hidden", to: "body")
+    |> JS.pop_focus()
   end
 end
