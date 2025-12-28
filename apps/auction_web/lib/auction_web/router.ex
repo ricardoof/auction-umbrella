@@ -1,5 +1,6 @@
 defmodule AuctionWeb.Router do
   use AuctionWeb, :router
+  import AuctionWeb.UserAuth
 
   pipeline :browser do
     plug :accepts, ["html"]
@@ -8,6 +9,7 @@ defmodule AuctionWeb.Router do
     plug :put_root_layout, html: {AuctionWeb.Layouts, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
+    plug :fetch_current_user
   end
 
   pipeline :api do
@@ -22,6 +24,14 @@ defmodule AuctionWeb.Router do
     live "/items/new", ItemLive.Index, :new
     live "/items/:id/edit", ItemLive.Index, :edit
     live "/items/:id", ItemLive.Show, :show
+
+    live "/users/register", UserLive.Registration
+    live "/users/:id", UserLive.Show
+
+    live "/login", UserLive.Login
+
+    post "/login", SessionController, :create
+    delete "/logout", SessionController, :delete
   end
 
   # Other scopes may use custom stacks.

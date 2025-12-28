@@ -530,7 +530,7 @@ defmodule AuctionWeb.CoreComponents do
     ~H"""
     <.form :let={f} for={@for} as={@as} {@rest}>
       <div class="space-y-8 mt-10">
-        <.error :if={@for.source.action in [:insert, :update]}>
+        <.error :if={Map.get(@for.source, :action) in [:insert, :update]}>
           Oops, algo deu errado! Por favor, verifique os erros abaixo.
         </.error>
 

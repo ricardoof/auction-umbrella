@@ -50,8 +50,11 @@ defmodule AuctionWeb do
 
   def live_view do
     quote do
-      use Phoenix.LiveView
+      use Phoenix.LiveView,
+        layout: {AuctionWeb.Layouts, :app}
 
+      on_mount AuctionWeb.UserAuth
+      
       unquote(html_helpers())
     end
   end
