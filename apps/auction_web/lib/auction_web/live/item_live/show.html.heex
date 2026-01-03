@@ -1,0 +1,61 @@
+<div class="mx-auto max-w-4xl">
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold mb-2"><%= @item.title %></h1>
+    <div class="text-gray-600">
+      <p><%= @item.description %></p>
+      <p class="text-sm mt-1">Termina em: <strong><%= @item.ends_at %></strong></p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+
+    <div>
+      <h2 class="text-xl font-semibold mb-4 pb-2 border-b">Lances Atuais</h2>
+
+      <div class="space-y-3">
+        <%= if Enum.empty?(@item.bids) do %>
+          <p class="text-gray-400 italic">Nenhum lance ainda. Seja o primeiro!</p>
+        <% else %>
+          <%= for bid <- @item.bids do %>
+            <div class="flex justify-between items-center bg-gray-50 p-3 rounded-lg">
+              <span class="font-bold text-green-700 text-lg">
+                <%= format_currency(bid.amount) %>
+              </span>
+              <span class="text-gray-600 text-sm">
+                por <strong class="text-gray-900"><%= bid.user.username %></strong>
+              </span>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+
+    <div>
+      <div class="bg-white p-6 rounded-lg shadow-md border border-gray-100">
+        <%= if @current_user do %>
+          <h2 class="text-lg text-black font-semibold mb-4">Faça seu lance</h2>
+
+          <.form for={@form} phx-submit="save_bid" class="space-y-4">
+            <.input
+              field={@form[:amount]}
+              type="number"
+              label="Valor (em centavos)"
+              step="1"
+              required
+            />
+
+            <.button class="w-full text-black">Confirmar Lance</.button>
+          </.form>
+        <% else %>
+          <div class="text-center py-6">
+            <p class="text-gray-600 mb-4">Quer participar?</p>
+            <.link navigate={~p"/login"} class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+              Faça Login para dar lances
+            </.link>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+  </div>
+</div>
