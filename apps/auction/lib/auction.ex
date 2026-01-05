@@ -70,9 +70,16 @@ defmodule Auction do
 
   # Traz o item, seus lances, e os donos dos lances
   def get_item_with_bids(id) do
+    # Define a regra de ordenação: Lances ordenados por inserção (Descrescente)
+    # E já faz o preload do usuário junto para não precisar carregar depois
+    query_bids = from b in Auction.Bid,
+      order_by: [desc: b.inserted_at],
+      preload: [:user]
+
     id
     |> get_item()
-    |> Repo.preload(bids: [:user])
+    # Aqui dizemos: "Traga os lances usando aquela regra da query acima"
+    |> Repo.preload(bids: query_bids)
   end
 
   def get_bids_for_user(user) do

@@ -3,7 +3,7 @@
     <h1 class="text-3xl font-bold mb-2"><%= @item.title %></h1>
     <div class="text-gray-600">
       <p><%= @item.description %></p>
-      <p class="text-sm mt-1">Termina em: <strong><%= @item.ends_at %></strong></p>
+      <p class="text-sm mt-1">Termina em: <strong><%= format_datetime(@item.ends_at) %></strong></p>
     </div>
   </div>
 
