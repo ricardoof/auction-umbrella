@@ -35,9 +35,12 @@ defmodule AuctionWeb.Router do
   end
 
   # Other scopes may use custom stacks.
-  # scope "/api", AuctionWeb do
-  #   pipe_through :api
-  # end
+  scope "/api", AuctionWeb.Api do
+    pipe_through :api
+
+    # Apenas leitura: index (listar todos) e show (ver um)
+    resources "/items", ItemController, only: [:index, :show]
+  end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development
   if Application.compile_env(:auction_web, :dev_routes) do
