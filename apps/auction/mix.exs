@@ -11,7 +11,9 @@ defmodule Auction.MixProject do
       lockfile: "../../mix.lock",
       elixir: "~> 1.18",
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+      aliases: aliases(),
+      elixirc_paths: elixirc_paths(Mix.env())
     ]
   end
 
@@ -34,4 +36,15 @@ defmodule Auction.MixProject do
       {:pbkdf2_elixir, "~> 2.0"}
     ]
   end
+
+  defp aliases do
+    [
+      # Quando rodar "mix test", ele garante que o banco existe e está migrado
+      test: ["ecto.create --quiet", "ecto.migrate", "test"]
+    ]
+  end
+
+  # Especifica quais caminhos compilar por ambiente
+  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(_), do: ["lib"]
 end

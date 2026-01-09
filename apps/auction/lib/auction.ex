@@ -44,7 +44,35 @@ defmodule Auction do
     |> Repo.insert()
   end
 
-  # Tenta achar usuário e conferir senha
+  @doc """
+  Retrieves a user matching the given username and password.
+
+  Returns `false` if no user is found or password doesn't match.
+
+  ## Examples
+
+      iex> # Setup: Agora com password_confirmation para passar na validação!
+      iex> Auction.insert_user(%{
+      ...>   username: "test_user",
+      ...>   password: "secure_password",
+      ...>   password_confirmation: "secure_password",
+      ...>   email_address: "test@example.com"
+      ...> })
+      iex>
+      iex> # Teste 1: Login com sucesso
+      iex> user = Auction.get_user_by_username_and_password("test_user", "secure_password")
+      iex> user.username
+      "test_user"
+      iex>
+      iex> # Teste 2: Senha errada
+      iex> Auction.get_user_by_username_and_password("test_user", "wrong_pass")
+      false
+      iex>
+      iex> # Teste 3: Usuário inexistente
+      iex> Auction.get_user_by_username_and_password("ghost", "123")
+      false
+
+  """
   def get_user_by_username_and_password(username, password) do
     with %User{} = user <- Repo.get_by(User, username: username),
          true <- Password.verify_with_hash(password, user.hashed_password) do
@@ -52,7 +80,7 @@ defmodule Auction do
     else
       _ ->
         Password.dummy_verify()
-        nil
+        false
     end
   end
 

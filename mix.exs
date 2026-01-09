@@ -7,7 +7,9 @@ defmodule AuctionUmbrella.MixProject do
       version: "0.1.0",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
-      listeners: [Phoenix.CodeReloader]
+      listeners: [Phoenix.CodeReloader],
+      name: "Auction System",    # O nome bonito que vai aparecer no topo do site
+      app: :auction_umbrella     # O nome técnico da aplicação raiz
     ]
   end
 
@@ -17,6 +19,8 @@ defmodule AuctionUmbrella.MixProject do
   #
   # Run "mix help deps" for examples and options.
   defp deps do
-    []
+    [
+      {:ex_doc, "~> 0.31", only: :dev, runtime: false}
+    ]
   end
 end

@@ -69,6 +69,7 @@ defmodule AuctionWeb.ItemLive.Show do
 
   # Essa função roda AUTOMATICAMENTE quando chega uma mensagem no tópico assinado
   # 3. HANDLE_INFO: Simplificado
+  @impl true
   def handle_info({:new_bid, bid}, socket) do
     current_item = socket.assigns.item
 
